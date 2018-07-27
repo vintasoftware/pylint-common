@@ -1,4 +1,6 @@
-from pylint.checkers.base import BasicChecker, astroid
+import astroid
+from astroid.__pkginfo__ import numversion as ASTROID_VERSION
+from pylint.checkers.base import BasicChecker
 from pylint_plugin_utils import augment_visit
 
 
@@ -7,6 +9,11 @@ try:
     BASESTRING = basestring
 except NameError:
     BASESTRING = str
+
+if ASTROID_VERSION >= (2, 0):
+    AstroidClass = astroid.ClassDef
+else:
+    AstroidClass = astroid.Class
 
 
 def allow_attribute_comments(chain, node):
@@ -20,7 +27,7 @@ def allow_attribute_comments(chain, node):
 
     # TODO: find the relevant citation for why this is the correct way to comment attributes
     if isinstance(node.previous_sibling(), astroid.Assign) and \
-            isinstance(node.parent, (astroid.Class, astroid.Module)) and \
+            isinstance(node.parent, (AstroidClass, astroid.Module)) and \
             isinstance(node.value, astroid.Const) and \
             isinstance(node.value.value, BASESTRING):
         return
